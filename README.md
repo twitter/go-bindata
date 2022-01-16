@@ -1,5 +1,9 @@
 ## bindata
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/twitter/go-bindata)](https://goreportcard.com/report/github.com/twitter/go-bindata)
+[![GoDoc](https://pkg.go.dev/badge/github.com/twitter/go-bindata?status.svg)](https://pkg.go.dev/github.com/twitter/go-bindata?tab=doc)
+[![License: CC0-1.0](https://licensebuttons.net/l/zero/1.0/80x15.png)](http://creativecommons.org/publicdomain/zero/1.0/)
+
 This package converts any file into managable Go source code. Useful for
 embedding binary data into a go program. The file data is optionally gzip
 compressed before being converted to a raw byte slice.
