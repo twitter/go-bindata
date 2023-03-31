@@ -6,31 +6,28 @@ package bindata
 
 import (
 	"fmt"
-	"io"
+	"io/ioutil"
+	"os"
+	"path"
+	"strings"
+	"time"
 )
 
 func writeRestore(w io.Writer) error {
-	_, err := fmt.Fprintf(w, `
+	_, _ = fmt.Fprintf(w, `
 // RestoreAsset restores an asset under the given directory
 func RestoreAsset(dir, name string) error {
 	data, err := Asset(name)
 	if err != nil {
 		return err
 	}
-	info, err := AssetInfo(name)
-	if err != nil {
+	if err := os.MkdirAll(path.Join(dir, path.Dir(name)), os.ModePerm); err != nil {
 		return err
 	}
-	err = os.MkdirAll(_filePath(dir, filepath.Dir(name)), os.FileMode(0755))
-	if err != nil {
+	if err := ioutil.WriteFile(path.Join(dir, name), data, os.ModePerm); err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(_filePath(dir, name), data, info.Mode())
-	if err != nil {
-		return err
-	}
-	err = os.Chtimes(_filePath(dir, name), info.ModTime(), info.ModTime())
-	if err != nil {
+	if err := os.Chtimes(path.Join(dir, name), time.Now(), time.Now()); err != nil {
 		return err
 	}
 	return nil
@@ -39,25 +36,21 @@ func RestoreAsset(dir, name string) error {
 // RestoreAssets restores an asset under the given directory recursively
 func RestoreAssets(dir, name string) error {
 	children, err := AssetDir(name)
-	// File
 	if err != nil {
 		return RestoreAsset(dir, name)
 	}
-	// Dir
 	for _, child := range children {
-		err = RestoreAssets(dir, filepath.Join(name, child))
-		if err != nil {
+		if err := RestoreAssets(dir, path.Join(name, child)); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func _filePath(dir, name string) string {
-	cannonicalName := strings.Replace(name, "\\", "/", -1)
-	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
+func canonicalPath(name string) string {
+	return strings.ReplaceAll(name, "\\", "/")
+}
+`)
+	return nil
 }
 
-`)
-	return err
-}
