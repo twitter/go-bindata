@@ -4,11 +4,11 @@
 
 package bindata
 
-import (
-	"io"
-)
+import "io"
 
 const lowerHex = "0123456789abcdef"
+const hexDigitStart = 2
+const hexDigitEnd = 3
 
 type StringWriter struct {
 	io.Writer
@@ -20,12 +20,11 @@ func (w *StringWriter) Write(p []byte) (n int, err error) {
 		return
 	}
 
-	buf := []byte(`\x00`)
-	var b byte
+	buf := []byte{'\\', 'x', '0', '0'}
 
-	for n, b = range p {
-		buf[2] = lowerHex[b/16]
-		buf[3] = lowerHex[b%16]
+	for n, b := range p {
+		buf[hexDigitStart] = lowerHex[b/16]
+		buf[hexDigitEnd] = lowerHex[b%16]
 		w.Writer.Write(buf)
 		w.c++
 	}
